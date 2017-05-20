@@ -5,9 +5,9 @@ GOBUILD = go build -ldflags '-w'
 ALL = \
 	$(foreach arch,64 32,\
 	$(foreach suffix,linux osx,\
-		build/go-logpipe-$(arch)-$(suffix))) \
+		build/go-logd-$(arch)-$(suffix))) \
 	$(foreach arch,arm arm64,\
-		build/go-logpipe-$(arch)-linux)
+		build/go-logd-$(arch)-linux)
 
 all: test build
 
@@ -24,28 +24,28 @@ clean:
 # os is determined as thus: if variable of suffix exists, it's taken, if not, then
 # suffix itself is taken
 osx = darwin
-build/go-logpipe-64-%: $(SOURCE)
+build/go-logd-64-%: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=$(firstword $($*) $*) GOARCH=amd64 $(GOBUILD) -o $@
 
-build/go-logpipe-32-%: $(SOURCE)
+build/go-logd-32-%: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=$(firstword $($*) $*) GOARCH=386 $(GOBUILD) -o $@
 
-build/go-logpipe-arm-linux: $(SOURCE)
+build/go-logd-arm-linux: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 $(GOBUILD) -o $@
 
-build/go-logpipe-arm64-linux: $(SOURCE)
+build/go-logd-arm64-linux: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GOBUILD) -o $@
 
 release: build
-	github-release release -u webdevops -r go-logpipe -t "$(TAG)" -n "$(TAG)" --description "$(TAG)"
+	github-release release -u webdevops -r go-logd -t "$(TAG)" -n "$(TAG)" --description "$(TAG)"
 	@for x in $(ALL); do \
 		echo "Uploading $$x" && \
 		github-release upload -u webdevops \
-                              -r go-logpipe \
+                              -r go-logd \
                               -t $(TAG) \
                               -f "$$x" \
                               -n "$$(basename $$x)"; \

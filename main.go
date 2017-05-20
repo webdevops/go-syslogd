@@ -10,6 +10,7 @@ import (
     "regexp"
     "strconv"
     flags "github.com/jessevdk/go-flags"
+    syslog "gopkg.in/mcuadros/go-syslog.v2"
 )
 
 const (
@@ -28,10 +29,8 @@ type Pipe struct {
 }
 
 var opts struct {
-    Positional struct {
-        Pipe []string `description:"stdout:/path/to/pipe or stderr:/path/to/pipe"`
-    } `positional-args:"true" required:"yes"`
-
+    Syslog                  bool     `           long:"syslog"                        description:"Provide syslog server"`
+    Pipes                 []string   `           long:"pipe"                          description:"Setup file based named pipe for collecting log informations (eg. stdout:/path/to/file or stderr:/path/to/file)"`
     PipePermissions         string   `           long:"permissions"                   description:"Sets the permissions of the pipe" default:"0666"`
     ShowVersion             bool     `short:"V"  long:"version"                       description:"show version and exit"`
     ShowOnlyVersion         bool     `           long:"dumpversion"                   description:"show only version number and exit"`
@@ -81,6 +80,32 @@ func createAndHandlePipe(path string, output *os.File) {
     }
 }
 
+func createAndHandleSyslog(path string) {
+    // Check if syslog path exists, remove if already existing
+    _, err := os.Stat(path)
+    if err == nil {
+        os.Remove(path)
+    }
+
+    channel := make(syslog.LogPartsChannel)
+    handler := syslog.NewChannelHandler(channel)
+
+    server := syslog.NewServer()
+    server.SetFormat(syslog.Automatic)
+    server.SetHandler(handler)
+    server.ListenUnixgram(path)
+    server.Boot()
+
+    go func(channel syslog.LogPartsChannel) {
+        for logParts := range channel {
+            message := fmt.Sprintf("%s", logParts["content"])
+            fmt.Println(message)
+        }
+    }(channel)
+
+    server.Wait()
+}
+
 // handle special cli options
 // eg. --help
 //     --version
@@ -95,7 +120,7 @@ func handleSpecialCliOptions(args []string) {
 
     // --version
     if (opts.ShowVersion) {
-        fmt.Println(fmt.Sprintf("go-logpipe version %s", Version))
+        fmt.Println(fmt.Sprintf("go-logd version %s", Version))
         fmt.Println(fmt.Sprintf("Copyright (C) 2017 %s", Author))
         os.Exit(0)
     }
@@ -144,9 +169,9 @@ func main() {
         }
     }
 
-    pipelist := buildPipelist(opts.Positional.Pipe)
+    pipelist := buildPipelist(opts.Pipes)
 
-    if (len(pipelist) == 0) {
+    if (len(pipelist) == 0 && opts.Syslog == false) {
         printHelp()
     }
 
@@ -163,6 +188,10 @@ func main() {
             }
             wg.Done()
         } (pipe);
+    }
+
+    if opts.Syslog {
+        createAndHandleSyslog("/dev/log")
     }
 
     wg.Wait()
