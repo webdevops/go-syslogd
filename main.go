@@ -24,7 +24,7 @@ var (
 
 type Pipe struct {
     Path  string
-    Type  *os.File
+    Type  string
 }
 
 var opts struct {
@@ -37,34 +37,34 @@ var opts struct {
     ShowOnlyVersion         bool     `           long:"dumpversion"                   description:"show only version number and exit"`
 }
 
-func createAndHandlePipe(pipe Pipe) {
+func createAndHandlePipe(path string, output *os.File) {
     pipeExists := false
     pipePerms, _ := strconv.ParseUint(opts.PipePermissions, 10, 32)
 
     // check for existing file
-    fileInfo, err := os.Stat(pipe.Path)
+    fileInfo, err := os.Stat(path)
 
     if err == nil {
         if (fileInfo.Mode() & os.ModeNamedPipe) > 0 {
             pipeExists = true
         } else {
             fmt.Printf("%d != %d\n", os.ModeNamedPipe, fileInfo.Mode())
-            panic(fmt.Sprintf("Pipe %s exists, but it's not a named pipe (FIFO)", pipe.Path))
+            panic(fmt.Sprintf("Pipe %s exists, but it's not a named pipe (FIFO)", path))
         }
     }
 
     // Try to create pipe if needed
     if !pipeExists {
-        err := syscall.Mkfifo(pipe.Path, uint32(pipePerms))
+        err := syscall.Mkfifo(path, uint32(pipePerms))
         if err != nil {
-            panic(fmt.Sprintf("Creation of pipe %s failed: %v", pipe.Path, err.Error()))
+            panic(fmt.Sprintf("Creation of pipe %s failed: %v", path, err.Error()))
         }
     }
 
     // Open pipe for reading
-    fd, err := os.Open(pipe.Path)
+    fd, err := os.Open(path)
     if err != nil {
-        panic(fmt.Sprintf("Failed opening pipe %s: %v", pipe.Path, err.Error()))
+        panic(fmt.Sprintf("Failed opening pipe %s: %v", path, err.Error()))
     }
     defer fd.Close()
     reader := bufio.NewReader(fd)
@@ -72,11 +72,11 @@ func createAndHandlePipe(pipe Pipe) {
     for {
         message, err := reader.ReadString(0xa)
         if err != nil && err != io.EOF {
-            panic(fmt.Sprintf("Reading from pipe %s failed: %v", pipe.Path, err.Error()))
+            panic(fmt.Sprintf("Reading from pipe %s failed: %v", path, err.Error()))
         }
 
         if message != "" {
-            fmt.Fprint(pipe.Type, message)
+            fmt.Fprint(output, message)
         }
     }
 }
@@ -109,17 +109,10 @@ func buildPipelist(args []string) ([]Pipe) {
     for _, line := range args {
         // check if line is matching our regexp
         if pipeRegexp.MatchString(line) == true {
-            var pipeType *os.File
             m := pipeRegexp.FindStringSubmatch(line)
 
+            pipeType := m[1]
             pipePath := m[2]
-
-            switch m[1] {
-                case "stdout":
-                    pipeType = os.Stdout
-                case "stderr":
-                    pipeType = os.Stderr
-            }
 
             pipelist = append(pipelist, Pipe{pipePath, pipeType})
         } else {
@@ -162,7 +155,12 @@ func main() {
     for _, pipe := range pipelist {
         wg.Add(1)
         go func(pipe Pipe) {
-            createAndHandlePipe(pipe)
+            switch pipe.Type {
+                case "stdout":
+                    createAndHandlePipe(pipe.Path, os.Stdout)
+                case "stderr":
+                    createAndHandlePipe(pipe.Path, os.Stdout)
+            }
             wg.Done()
         } (pipe);
     }
