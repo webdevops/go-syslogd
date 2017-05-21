@@ -1,0 +1,25 @@
+FROM golang:alpine
+
+# Install tools
+RUN apk --no-cache add vim nano bash git byobu
+
+# Install deps
+RUN go get github.com/jessevdk/go-flags
+RUN go get gopkg.in/mcuadros/go-syslog.v2
+RUN go get gopkg.in/yaml.v2
+
+# Add some shell history
+RUN set -x \
+    && ln -sf /root/.ash_history /root/.bash_history \
+    && echo go-syslogd >> /root/.ash_history
+
+# Copy source
+COPY . /go/src/go-syslogd
+WORKDIR /go/src/go-syslogd
+
+# Build and install
+RUN go build \
+    && cp -a go-syslogd /usr/local/bin \
+    && cp /go/src/go-syslogd/go-syslog.yml /etc/go-syslog.yml
+
+CMD ["./go-syslogd"]

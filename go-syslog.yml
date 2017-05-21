@@ -1,0 +1,17 @@
+---
+
+syslog:
+  path: "/dev/log"
+  perms: 0666
+  filter:
+    facility: "auth,authpriv"
+
+pipes:
+  -
+    path: /docker.stdout
+    type: stdout
+    perms: 0666
+  -
+    path: /docker.stderr
+    type: stderr
+    perms: 0666

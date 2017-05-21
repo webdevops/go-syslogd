@@ -1,0 +1,7 @@
+build
+go-syslogd
+Dockerfile
+.git
+.editorconfig
+.gitignore
+.idea

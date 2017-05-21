@@ -5,11 +5,21 @@ GOBUILD = go build -ldflags '-w'
 ALL = \
 	$(foreach arch,64 32,\
 	$(foreach suffix,linux osx,\
-		build/go-logd-$(arch)-$(suffix))) \
+		build/go-syslogd-$(arch)-$(suffix))) \
 	$(foreach arch,arm arm64,\
-		build/go-logd-$(arch)-linux)
+		build/go-syslogd-$(arch)-linux)
 
 all: test build
+
+docker:
+	docker build . -t webdevops/go-syslogd
+
+docker-dev:
+	docker build -f Dockerfile.develop . -t webdevops/go-syslogd:develop
+
+docker-run-dev: docker-dev
+	docker run -ti --rm -w "$$(pwd)" -v "$$(pwd):$$(pwd):ro" webdevops/go-syslogd:develop sh
+
 
 build: clean test $(ALL)
 
@@ -24,28 +34,28 @@ clean:
 # os is determined as thus: if variable of suffix exists, it's taken, if not, then
 # suffix itself is taken
 osx = darwin
-build/go-logd-64-%: $(SOURCE)
+build/go-syslogd-64-%: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=$(firstword $($*) $*) GOARCH=amd64 $(GOBUILD) -o $@
 
-build/go-logd-32-%: $(SOURCE)
+build/go-syslogd-32-%: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=$(firstword $($*) $*) GOARCH=386 $(GOBUILD) -o $@
 
-build/go-logd-arm-linux: $(SOURCE)
+build/go-syslogd-arm-linux: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 $(GOBUILD) -o $@
 
-build/go-logd-arm64-linux: $(SOURCE)
+build/go-syslogd-arm64-linux: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GOBUILD) -o $@
 
 release: build
-	github-release release -u webdevops -r go-logd -t "$(TAG)" -n "$(TAG)" --description "$(TAG)"
+	github-release release -u webdevops -r go-syslogd -t "$(TAG)" -n "$(TAG)" --description "$(TAG)"
 	@for x in $(ALL); do \
 		echo "Uploading $$x" && \
 		github-release upload -u webdevops \
-                              -r go-logd \
+                              -r go-syslogd \
                               -t $(TAG) \
                               -f "$$x" \
                               -n "$$(basename $$x)"; \
