@@ -7,7 +7,7 @@ WORKDIR /go/src/go-syslogd
 RUN apk --no-cache add --virtual .gosyslogd-deps git \
     && go get \
     && go build \
-    && mv go-crond /usr/local/bin \
+    && mv go-syslogd /usr/local/bin \
     && rm -rf /go/src/ \
     && apk del .gosyslogd-deps
 
