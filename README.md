@@ -8,6 +8,8 @@
 
 Syslog daemon written in golang which also provides named pipes (FIFO)
 
+This daemon will collect written logs and syslog messages and writes them to STDOUT and STDERR (eg. for usage in Docker)
+
 Inspired by https://github.com/abrander/logpipe
 
 ## Usage
