@@ -42,3 +42,9 @@ GOSYSLOGD_VERSION=0.1.0 \
 && chmod +x /usr/local/bin/go-syslogd
 ```
 
+## Docker images
+
+| Image                         | Description                                                         |
+|:------------------------------|:--------------------------------------------------------------------|
+| `webdevops/go-syslogd:latest` | Latest release, binary only                                         |
+| `webdevops/go-syslogd:master` | Current development version in branch `master`, with golang runtime |
