@@ -12,6 +12,9 @@ type Syslog struct {
     Filter struct {
         Facility string
         facility int
+
+        Severity string
+        severity int
     }
     Output struct {
         Template string
@@ -46,6 +49,21 @@ var SyslogFacilityMap = map[string]int {
     "local7": 23,
 }
 
+var SyslogPriorityMap = map[string]int {
+    "emerg": 0,
+    "emergency": 0,
+    "alert": 1,
+    "crit": 2,
+    "critical": 2,
+    "err": 3,
+    "error": 3,
+    "warn": 4,
+    "warning": 4,
+    "notice": 5,
+    "info": 6,
+    "dbg": 7,
+    "debug": 7,
+}
 
 func handleSyslog() {
     LoggerStdout.Verbose(fmt.Sprintf(" -> starting syslog daemon (%s)", configuration.Syslog.Path))
@@ -68,9 +86,15 @@ func handleSyslog() {
     go func(channel syslog.LogPartsChannel) {
         for logParts := range channel {
             facilityId := uint(logParts["facility"].(int))
+            severityId := uint(logParts["severity"].(int))
 
             // facility filter
             if hasBit(configuration.Syslog.Filter.facility, facilityId) == false {
+                continue
+            }
+
+            // severity filter
+            if hasBit(configuration.Syslog.Filter.severity, severityId) == false {
                 continue
             }
 

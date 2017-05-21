@@ -10,8 +10,10 @@ syslog:
   perms: 0666
 
   # Message filtering
+  # these messages will NOT be shown
   filter:
     facility: "auth,authpriv"
+    severity: "debug,info"
 
   # Output manipulation
   output:

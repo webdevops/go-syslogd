@@ -71,15 +71,29 @@ func parseConfiguration() {
 
     // set internal defaults
     configuration.Syslog.Filter.facility = 9223372036854775807
+    configuration.Syslog.Filter.severity = 9223372036854775807
 
     // init syslog configuration
     if configuration.Syslog.Path != "" {
+
         // Facility filter
-        for _, facility := range strings.Split(configuration.Syslog.Filter.Facility, ",") {
-            if facilityId, ok := SyslogFacilityMap[facility]; ok {
-                configuration.Syslog.Filter.facility = clearBit(configuration.Syslog.Filter.facility, uint(facilityId))
+        if configuration.Syslog.Filter.Facility != "" {
+            for _, facility := range strings.Split(configuration.Syslog.Filter.Facility, ",") {
+                if facilityId, ok := SyslogFacilityMap[facility]; ok {
+                    configuration.Syslog.Filter.facility = clearBit(configuration.Syslog.Filter.facility, uint(facilityId))
+                }
             }
         }
+
+        // Severity filter
+        if configuration.Syslog.Filter.Severity != "" {
+            for _, severity := range strings.Split(configuration.Syslog.Filter.Severity, ",") {
+                if severityId, ok := SyslogPriorityMap[severity]; ok {
+                    configuration.Syslog.Filter.severity = clearBit(configuration.Syslog.Filter.severity, uint(severityId))
+                }
+            }
+        }
+
     }
 }
 
