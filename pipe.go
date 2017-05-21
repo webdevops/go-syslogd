@@ -6,7 +6,6 @@ import (
 	"io"
 	"bufio"
 	"syscall"
-	"regexp"
 	"strconv"
 )
 
@@ -70,29 +69,7 @@ func handlePipe(pipe Pipe) {
         }
 
         if message != "" {
-            fmt.Fprint(pipeOutput, message)
+            printMessage(pipeOutput, message)
         }
     }
-}
-
-// Build a pipe array list from command line arguments
-func buildPipelist(args []string) ([]Pipe) {
-	var pipelist []Pipe
-	pipeRegexp := regexp.MustCompile(PipeArgumentRegexp)
-
-	for _, line := range args {
-		// check if line is matching our regexp
-		if pipeRegexp.MatchString(line) == true {
-			m := pipeRegexp.FindStringSubmatch(line)
-
-			pipeType := m[1]
-			pipePath := m[2]
-
-			pipelist = append(pipelist, Pipe{Path:pipePath, Type:pipeType})
-		} else {
-			printHelp()
-		}
-	}
-
-	return pipelist
 }

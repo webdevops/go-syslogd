@@ -52,7 +52,7 @@ func handleSpecialCliOptions(args []string) {
     }
 }
 
-
+// Parse configuration from yml file
 func parseConfiguration() {
     confData, err := ioutil.ReadFile(opts.Configuration)
     if err != nil {
@@ -74,6 +74,10 @@ func parseConfiguration() {
             }
         }
     }
+}
+
+func printMessage(dest *os.File, msg string) {
+    fmt.Fprint(dest, msg)
 }
 
 // Prints help

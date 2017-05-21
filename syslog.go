@@ -82,7 +82,7 @@ func handleSyslog() {
             }
 
             message := fmt.Sprintf("%s: %s", facility, logParts["content"])
-            fmt.Println(message)
+            printMessage(os.Stdout, message)
         }
     }(channel)
 
