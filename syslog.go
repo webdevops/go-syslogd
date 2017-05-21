@@ -35,6 +35,15 @@ var SyslogFacilityMap = map[string]int {
     "ntp": 12,
     "security": 13,
     "console": 14,
+    "solaris-cron": 15,
+    "local0": 16,
+    "local1": 17,
+    "local2": 18,
+    "local3": 19,
+    "local4": 20,
+    "local5": 21,
+    "local6": 22,
+    "local7": 23,
 }
 
 
