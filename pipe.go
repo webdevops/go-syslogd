@@ -13,13 +13,17 @@ type Pipe struct {
     Path  string
     Type  string
     Perms string
+
+    Output struct {
+        Template string
+    }
 }
 
 // Create and handle log data from pipe
 func handlePipe(pipe Pipe) {
     pipeExists := false
 
-    LoggerStdout.Verbose(fmt.Sprintf(" -> Starting named pipe (%s)", pipe.Path))
+    LoggerStdout.Verbose(fmt.Sprintf(" -> starting named pipe (%s)", pipe.Path))
 
     // get pipe permissions
     if pipe.Perms == "" {
@@ -63,11 +67,16 @@ func handlePipe(pipe Pipe) {
         }
 
         if message != "" {
+
+            if pipe.Output.Template != "" {
+                message = fmt.Sprintf(pipe.Output.Template, message)
+            }
+
             switch pipe.Type {
                 case "stdout":
-                    LoggerStdout.Println(message)
+                    LoggerStdout.Print(message)
                 case "stderr":
-                    LoggerStderr.Println(message)
+                    LoggerStderr.Print(message)
             }
         }
     }

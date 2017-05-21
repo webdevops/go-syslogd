@@ -13,6 +13,9 @@ type Syslog struct {
         Facility string
         facility int
     }
+    Output struct {
+        Template string
+    }
 }
 
 
@@ -53,7 +56,7 @@ var SyslogFacilityLookup = map[int]string {
 }
 
 func handleSyslog() {
-    LoggerStdout.Verbose(fmt.Sprintf(" -> Starting syslog daemon (%s)", configuration.Syslog.Path))
+    LoggerStdout.Verbose(fmt.Sprintf(" -> starting syslog daemon (%s)", configuration.Syslog.Path))
 
     // Check if syslog path exists, remove if already existing
     _, err := os.Stat(configuration.Syslog.Path)
@@ -77,13 +80,14 @@ func handleSyslog() {
                 continue
             }
 
-            facilityId := logParts["facility"].(int)
-            facility := "custom"
-            if val, ok := SyslogFacilityLookup[facilityId]; ok {
-                facility = val
+            // build message
+            message := logParts["content"]
+
+            // custom template
+            if configuration.Syslog.Output.Template != "" {
+                message = fmt.Sprintf(configuration.Syslog.Output.Template, message)
             }
 
-            message := fmt.Sprintf("%s: %s", facility, logParts["content"])
             LoggerStdout.Println(message)
         }
     }(channel)

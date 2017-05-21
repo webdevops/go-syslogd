@@ -5,6 +5,8 @@ syslog:
   perms: 0666
   filter:
     facility: "auth,authpriv"
+  output:
+    template: "[SYSLOG] %s"
 
 pipes:
   -
@@ -15,3 +17,5 @@ pipes:
     path: /docker.stderr
     type: stderr
     perms: 0666
+    output:
+      template: "[STDERR] %s"
