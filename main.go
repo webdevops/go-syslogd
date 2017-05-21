@@ -69,13 +69,15 @@ func parseConfiguration() {
         panic(fmt.Sprintf("Unable to parse configuration file %s: %v", opts.Configuration, err.Error()))
     }
 
-    if configuration.Syslog.Path != "" {
-        configuration.Syslog.Filter.facility = 255
+    // set internal defaults
+    configuration.Syslog.Filter.facility = 9223372036854775807
 
+    // init syslog configuration
+    if configuration.Syslog.Path != "" {
         // Facility filter
         for _, facility := range strings.Split(configuration.Syslog.Filter.Facility, ",") {
             if facilityId, ok := SyslogFacilityMap[facility]; ok {
-                configuration.Syslog.Filter.facility -= facilityId
+                configuration.Syslog.Filter.facility = clearBit(configuration.Syslog.Filter.facility, uint(facilityId))
             }
         }
     }

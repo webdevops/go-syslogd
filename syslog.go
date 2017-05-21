@@ -37,23 +37,6 @@ var SyslogFacilityMap = map[string]int {
     "console": 14,
 }
 
-var SyslogFacilityLookup = map[int]string {
-    0: "kern",
-    1: "user",
-    2: "mail",
-    3: "daemon",
-    4: "auth",
-    5: "syslog",
-    6: "lpr",
-    7: "news",
-    8: "uucp",
-    9: "cron",
-    10: "authpriv",
-    11: "ftp",
-    12: "ntp",
-    13: "security",
-    14: "console",
-}
 
 func handleSyslog() {
     LoggerStdout.Verbose(fmt.Sprintf(" -> starting syslog daemon (%s)", configuration.Syslog.Path))
@@ -75,13 +58,17 @@ func handleSyslog() {
 
     go func(channel syslog.LogPartsChannel) {
         for logParts := range channel {
+            facilityId := uint(logParts["facility"].(int))
+
             // facility filter
-            if configuration.Syslog.Filter.facility & logParts["facility"].(int) == 0 {
+            if hasBit(configuration.Syslog.Filter.facility, facilityId) == false {
                 continue
             }
 
+            //fmt.Println(logParts)
+
             // build message
-            message := logParts["content"]
+            message := fmt.Sprintf("%s %s", logParts["hostname"], logParts["content"])
 
             // custom template
             if configuration.Syslog.Output.Template != "" {
