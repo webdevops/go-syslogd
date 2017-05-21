@@ -18,7 +18,7 @@ docker-dev:
 	docker build -f Dockerfile.develop . -t webdevops/go-syslogd:develop
 
 docker-run-dev: docker-dev
-	docker run -ti --rm -w "$$(pwd)" -v "$$(pwd):$$(pwd):ro" webdevops/go-syslogd:develop sh
+	docker run -ti --rm -w "$$(pwd)" -v "$$(pwd):$$(pwd):ro" --name go-syslogd webdevops/go-syslogd:develop sh
 
 
 build: clean test $(ALL)
