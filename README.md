@@ -36,7 +36,7 @@ see [etc/go-syslog.yml](etc/go-syslog.yml) for an example.
 ## Installation
 
 ```bash
-GOSYSLOGD_VERSION=0.2.0 \
+GOSYSLOGD_VERSION=0.2.1 \
 && wget -O /etc/go-syslog.yml https://raw.githubusercontent.com/webdevops/go-syslogd/master/etc/go-syslog.yml \
 && wget -O /usr/local/bin/go-syslogd https://github.com/webdevops/go-syslogd/releases/download/GOSYSLOGD_VERSION/go-syslogd-64-linux \
 && chmod +x /usr/local/bin/go-syslogd

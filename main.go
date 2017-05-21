@@ -14,7 +14,7 @@ import (
 const (
     Name      = "go-syslogd"
     Author    = "webdevops.io"
-    Version   = "0.2.0"
+    Version   = "0.2.1"
     LogPrefix = ""
 )
 
