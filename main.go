@@ -70,8 +70,8 @@ func parseConfiguration() {
     }
 
     // set internal defaults
-    configuration.Syslog.Filter.facility = 9223372036854775807
-    configuration.Syslog.Filter.severity = 9223372036854775807
+    configuration.Syslog.Filter.facility = 2147483647
+    configuration.Syslog.Filter.severity = 2147483647
 
     // init syslog configuration
     if configuration.Syslog.Path != "" {
