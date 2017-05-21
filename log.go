@@ -1,23 +1,15 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    "strings"
+    "log"
 )
 
-
-// Log error object as message
-func logError(err error) {
-    fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: %s\n", err))
+type SyslogLogger struct {
+    *log.Logger
 }
 
-// Log error object as message
-func logFatalErrorAndExit(err error, exitCode int) {
-    cmdline := fmt.Sprintf("%s %s", argparser.Command.Name, strings.Join(os.Args[1:], " "))
-
-    fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: %s", err))
-    fmt.Fprintln(os.Stderr, fmt.Sprintf("Command: %s", cmdline))
-
-    os.Exit(exitCode)
+func (SyslogLogger SyslogLogger) Verbose(message string) {
+    if opts.Verbose {
+        SyslogLogger.Println(message)
+    }
 }

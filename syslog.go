@@ -53,6 +53,8 @@ var SyslogFacilityLookup = map[int]string {
 }
 
 func handleSyslog() {
+    LoggerStdout.Verbose(fmt.Sprintf(" -> Starting syslog daemon (%s)", configuration.Syslog.Path))
+
     // Check if syslog path exists, remove if already existing
     _, err := os.Stat(configuration.Syslog.Path)
     if err == nil {
@@ -82,7 +84,7 @@ func handleSyslog() {
             }
 
             message := fmt.Sprintf("%s: %s", facility, logParts["content"])
-            printMessage(os.Stdout, message)
+            LoggerStdout.Println(message)
         }
     }(channel)
 

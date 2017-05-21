@@ -6,19 +6,23 @@ import (
     "io/ioutil"
     "sync"
     "strings"
+    "log"
     flags "github.com/jessevdk/go-flags"
     yaml "gopkg.in/yaml.v2"
 )
 
 const (
-    Name    = "go-syslogd"
-    Author  = "webdevops.io"
-    Version = "0.1.0"
+    Name      = "go-syslogd"
+    Author    = "webdevops.io"
+    Version   = "0.1.0"
+    LogPrefix = ""
 )
 
 var (
     argparser *flags.Parser
     configuration ConfigurationDefinition
+    LoggerStdout SyslogLogger
+    LoggerStderr SyslogLogger
 )
 
 type ConfigurationDefinition struct {
@@ -28,6 +32,7 @@ type ConfigurationDefinition struct {
 
 var opts struct {
     Configuration           string   `short:"c"  long:"configuration"                 description:"Configuration file (yml)" default:"/etc/go-syslog.yml"`
+    Verbose                 bool     `short:"v"  long:"verbose"                       description:"verbose mode"`
     ShowVersion             bool     `short:"V"  long:"version"                       description:"show version and exit"`
     ShowOnlyVersion         bool     `           long:"dumpversion"                   description:"show only version number and exit"`
 }
@@ -76,19 +81,24 @@ func parseConfiguration() {
     }
 }
 
-func printMessage(dest *os.File, msg string) {
-    fmt.Fprint(dest, msg)
-}
-
 // Prints help
 func printHelp() {
     argparser.WriteHelp(os.Stdout)
     os.Exit(1)
 }
 
+// Init system loggers
+func initLogger() {
+    LoggerStdout = SyslogLogger{log.New(os.Stdout, LogPrefix, 0)}
+    LoggerStderr = SyslogLogger{log.New(os.Stderr, LogPrefix, 0)}
+}
+
 // Main function
 func main() {
     var wg sync.WaitGroup
+
+    // init logger
+    initLogger()
 
     // init argument parser
     argparser = flags.NewParser(&opts, flags.Default)
@@ -108,7 +118,7 @@ func main() {
     // parse yml configuration
     parseConfiguration()
 
-    fmt.Println(fmt.Sprintf("Starting %s version %s", Name, Version))
+    LoggerStdout.Println(fmt.Sprintf("Starting %s version %s", Name, Version))
 
     // init pipes
     for _, pipe := range configuration.Pipes {

@@ -17,22 +17,15 @@ type Pipe struct {
 
 // Create and handle log data from pipe
 func handlePipe(pipe Pipe) {
-    var pipeOutput *os.File
     pipeExists := false
+
+    LoggerStdout.Verbose(fmt.Sprintf(" -> Starting named pipe (%s)", pipe.Path))
 
     // get pipe permissions
     if pipe.Perms == "" {
         pipe.Perms = "0600"
     }
     pipePerms, _ := strconv.ParseUint(pipe.Perms, 8, 32)
-
-    // get pipe output destination
-    switch pipe.Type {
-    case "stdout":
-        pipeOutput = os.Stdout
-    case "stderr":
-        pipeOutput = os.Stderr
-    }
 
     // check for existing file
     fileInfo, err := os.Stat(pipe.Path)
@@ -50,26 +43,32 @@ func handlePipe(pipe Pipe) {
     if !pipeExists {
         err := syscall.Mkfifo(pipe.Path, uint32(pipePerms))
         if err != nil {
-            panic(fmt.Sprintf("Creation of pipe %s failed: %v", pipe.Path, err.Error()))
+            panic(fmt.Sprintf("Creation of named pipe %s failed: %v", pipe.Path, err.Error()))
         }
     }
 
     // Open pipe for reading
     fd, err := os.Open(pipe.Path)
     if err != nil {
-        panic(fmt.Sprintf("Failed opening pipe %s: %v", pipe.Path, err.Error()))
+        panic(fmt.Sprintf("Failed opening named pipe %s: %v", pipe.Path, err.Error()))
     }
     defer fd.Close()
     reader := bufio.NewReader(fd)
 
+    // loop messages
     for {
         message, err := reader.ReadString(0xa)
         if err != nil && err != io.EOF {
-            panic(fmt.Sprintf("Reading from pipe %s failed: %v", pipe.Path, err.Error()))
+            panic(fmt.Sprintf("Reading from named pipe %s failed: %v", pipe.Path, err.Error()))
         }
 
         if message != "" {
-            printMessage(pipeOutput, message)
+            switch pipe.Type {
+                case "stdout":
+                    LoggerStdout.Println(message)
+                case "stderr":
+                    LoggerStderr.Println(message)
+            }
         }
     }
 }

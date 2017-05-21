@@ -20,6 +20,6 @@ WORKDIR /go/src/go-syslogd
 # Build and install
 RUN go build \
     && cp -a go-syslogd /usr/local/bin \
-    && cp /go/src/go-syslogd/go-syslog.yml /etc/go-syslog.yml
+    && cp /go/src/go-syslogd/etc/go-syslog.yml /etc/go-syslog.yml
 
 CMD ["./go-syslogd"]
