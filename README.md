@@ -27,3 +27,7 @@ Help Options:
   -h, --help           Show this help message
 
 ```
+
+## Configuration
+
+see [etc/go-syslog.yml](etc/go-syslog.yml) for an example.
