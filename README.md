@@ -1,10 +1,10 @@
 # go-syslogd
 
-[![GitHub release](https://img.shields.io/github/release/webdevops/go-replace.svg)](https://github.com/webdevops/go-replace/releases)
-[![license](https://img.shields.io/github/license/webdevops/go-replace.svg)](https://github.com/webdevops/go-replace/blob/master/LICENSE)
-[![Build Status](https://travis-ci.org/webdevops/go-replace.svg?branch=master)](https://travis-ci.org/webdevops/go-replace)
-[![Github All Releases](https://img.shields.io/github/downloads/webdevops/go-replace/total.svg)]()
-[![Github Releases](https://img.shields.io/github/downloads/webdevops/go-replace/latest/total.svg)]()
+[![GitHub release](https://img.shields.io/github/release/webdevops/go-syslogd.svg)](https://github.com/webdevops/go-syslogd/releases)
+[![license](https://img.shields.io/github/license/webdevops/go-syslogd.svg)](https://github.com/webdevops/go-syslogd/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/webdevops/go-syslogd.svg?branch=master)](https://travis-ci.org/webdevops/go-syslogd)
+[![Github All Releases](https://img.shields.io/github/downloads/webdevops/go-syslogd/total.svg)]()
+[![Github Releases](https://img.shields.io/github/downloads/webdevops/go-syslogd/latest/total.svg)]()
 
 Syslog daemon written in golang which also provides named pipes (FIFO)
 
