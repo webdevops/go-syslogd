@@ -1,15 +1,15 @@
 package main
 
 import (
-    "log"
+	"log"
 )
 
 type SyslogLogger struct {
-    *log.Logger
+	*log.Logger
 }
 
 func (SyslogLogger SyslogLogger) Verbose(message string) {
-    if opts.Verbose {
-        SyslogLogger.Println(message)
-    }
+	if opts.Verbose {
+		SyslogLogger.Println(message)
+	}
 }
