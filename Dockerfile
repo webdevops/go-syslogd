@@ -1,15 +1,14 @@
-FROM golang:alpine
+FROM golang:alpine AS buildenv
 
 COPY . /go/src/go-syslogd
-
 WORKDIR /go/src/go-syslogd
 
-RUN apk --no-cache add --virtual .gosyslogd-deps git \
-    && cp /go/src/go-syslogd/etc/go-syslog.yml /etc/go-syslog.yml \
+RUN apk --no-cache add git \
     && go get \
     && go build \
-    && mv go-syslogd /usr/local/bin \
-    && rm -rf /go/src/ \
-    && apk del .gosyslogd-deps
+    && chmod +x go-syslogd \
+    && ./go-syslogd --version
 
+FROM golang:alpine
+COPY --from=buildenv /go/src/go-syslogd/go-syslogd /usr/local/bin
 CMD ["go-syslogd"]
